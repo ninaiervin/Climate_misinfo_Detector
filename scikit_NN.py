@@ -1,7 +1,7 @@
 import argparse
 from sklearn.calibration import LabelEncoder
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
 import exploring_data_layout as loader
 from sentence_transformers import SentenceTransformer
 
@@ -65,7 +65,10 @@ train_pr = precision_score(encoded_y_train, train_y_pred, average='macro')
 train_recall = recall_score(encoded_y_train, train_y_pred, average='macro')
 train_f1 = f1_score(encoded_y_train, train_y_pred, average='macro')
 
+matrix = confusion_matrix(encoded_y_dev, dev_y_pred)
+
 print(f"Accuracy: train={train_acc}, dev={dev_acc}")
 print(f"Precision: train={train_pr}, dev={dev_pr}")
 print(f"Recall: train={train_recall}, dev={dev_recall}")
 print(f"F1-score: train={dev_f1}, dev={dev_f1}")
+print(matrix)
