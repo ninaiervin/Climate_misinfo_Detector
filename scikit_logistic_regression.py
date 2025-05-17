@@ -1,8 +1,9 @@
 from sklearn.calibration import LabelEncoder
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, ConfusionMatrixDisplay
 import exploring_data_layout as loader
 from sentence_transformers import SentenceTransformer
+import matplotlib.pyplot as plt
 
 sentence_embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
@@ -46,7 +47,12 @@ precision = precision_score(encoded_y_dev, y_pred, average='macro')
 recall = recall_score(encoded_y_dev, y_pred, average='macro')
 f1 = f1_score(encoded_y_dev, y_pred, average='macro')
 
+matrix = confusion_matrix(encoded_y_dev, y_pred)
+
 print(f"Accuracy: {accuracy}")
 print(f"Precision: {precision}")
 print(f"Recall: {recall}")
 print(f"F1-score: {f1}")
+disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=model.classes_)
+disp.plot()
+plt.show()
