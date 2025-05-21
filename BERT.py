@@ -50,6 +50,8 @@ def compute_metrics(eval_pred):
     return {"accuracy": acc, "f1": f1}
 
 def main():
+    tracker = EmissionsTracker(project_name="BERT")
+    tracker.start()
     args = parse_args()
 
     train_x, train_y = load_jsonl('data/train_data.jsonl')
@@ -92,6 +94,8 @@ def main():
     )
 
     trainer.train()
+
+    tracker.stop()
 
 if __name__ == "__main__":
     main()

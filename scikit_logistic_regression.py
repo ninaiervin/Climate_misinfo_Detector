@@ -5,6 +5,9 @@ import exploring_data_layout as loader
 from sentence_transformers import SentenceTransformer
 import matplotlib.pyplot as plt
 
+tracker = EmissionsTracker(project_name="LR")
+tracker.start()
+
 sentence_embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
 train_data = loader.get_data('data/train_data.jsonl')
@@ -55,4 +58,5 @@ print(f"Recall: {recall}")
 print(f"F1-score: {f1}")
 disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=model.classes_)
 disp.plot()
+tracker.stop()
 plt.show()

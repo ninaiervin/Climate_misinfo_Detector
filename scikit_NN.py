@@ -1,4 +1,5 @@
 import argparse
+import torch
 from sklearn.calibration import LabelEncoder
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, ConfusionMatrixDisplay
@@ -6,6 +7,13 @@ import exploring_data_layout as loader
 from sentence_transformers import SentenceTransformer
 import matplotlib.pyplot as plt
 from joblib import dump, load
+from codecarbon import EmissionsTracker
+
+tracker = EmissionsTracker(project_name="NN")
+tracker.start()
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+torch.set_default_device(device)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-hi", type=int, default=100, help="This is the hidden layer side")
@@ -81,4 +89,5 @@ print(f"Recall: train={train_recall}, dev={dev_recall}")
 print(f"F1-score: train={dev_f1}, dev={dev_f1}")
 disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=model.classes_)
 disp.plot()
+tracker.stop()
 plt.show()
