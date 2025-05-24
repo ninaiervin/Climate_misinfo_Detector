@@ -1,7 +1,8 @@
 import argparse
+import wandb
 import json
 from datasets import Dataset
-from transformers import BertTokenizer, BertForSequenceClassification, Trainer, TrainingArguments
+from transformers import BertConfig, BertTokenizerFast, BertForSequenceClassification, Trainer, TrainingArguments
 import torch
 import exploring_data_layout as loader
 from sklearn.metrics import accuracy_score, f1_score
@@ -10,8 +11,12 @@ from codecarbon import EmissionsTracker
 def parse_args():
     parser = argparse.ArgumentParser(description="Fine-tune BERT for text classification")
     
-    parser.add_argument("--model_name", type=str, default="bert-base-uncased", help="Pretrained BERT model name")
-    parser.add_argument("--max_length", type=int, default=128, help="Max sequence length")
+    parser.add_argument("--model_name", type=str, default='bert-base-uncased', help="model name for tokenizer")
+    parser.add_argument("--hidden_size", type=int, default=128, help="size of hidden dimention")
+    parser.add_argument("--num_hidden_layers", type=int, default=2, help="number of hidden transfomer blocks")
+    parser.add_argument("--num_attention_heads", type=int, default=2, help="number of attention heads in each transfomer blocks")
+    parser.add_argument("--FFNN", type=int, default=256, help="size for FFNN")
+    parser.add_argument("--seq_length", type=int, default=50, help="max length of the input sequence")
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size")
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
     parser.add_argument("--lr", type=float, default=2e-5, help="Learning rate")
@@ -49,7 +54,7 @@ def compute_metrics(eval_pred):
     return {"accuracy": acc, "f1": f1}
 
 def main():
-    tracker = EmissionsTracker(project_name="BERT")
+    tracker = EmissionsTracker(project_name="Transfomer")
     tracker.start()
     args = parse_args()
 
@@ -59,13 +64,21 @@ def main():
     train_dataset = Dataset.from_list([{'sentence': x, 'label': int(y)} for x, y in zip(train_x, train_y)])
     dev_dataset = Dataset.from_list([{'sentence': x, 'label': int(y)} for x, y in zip(dev_x, dev_y)])
 
-    tokenizer = BertTokenizer.from_pretrained(args.model_name)
-    train_dataset = train_dataset.map(lambda x: tokenize_function(x, tokenizer, args.max_length), batched=True)
-    dev_dataset = dev_dataset.map(lambda x: tokenize_function(x, tokenizer, args.max_length), batched=True)
+    tokenizer = BertTokenizerFast.from_pretrained(args.model_name)
+    train_dataset = train_dataset.map(lambda x: tokenize_function(x, tokenizer, args.seq_length), batched=True)
+    dev_dataset = dev_dataset.map(lambda x: tokenize_function(x, tokenizer, args.seq_length), batched=True)
     train_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
     dev_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
 
-    model = BertForSequenceClassification.from_pretrained(args.model_name, num_labels=3)
+    config = BertConfig(
+        hidden_size=args.hidden_size,
+        num_hidden_layers=args.num_hidden_layers,
+        num_attention_heads=args.num_attention_heads,
+        intermediate_size=args.FFNN,
+        num_labels=3,
+    )
+
+    model = BertForSequenceClassification(config)
 
     training_args = TrainingArguments(
         output_dir=args.output_dir,
@@ -93,6 +106,7 @@ def main():
     )
 
     trainer.train()
+    wandb.finish()
 
     tracker.stop()
 
