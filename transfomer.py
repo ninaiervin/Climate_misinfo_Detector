@@ -132,6 +132,7 @@ def main():
         # layer Norm beta and gamma
         # final linear output layer
     trainer.train()
+    trainer.save_model(args.output_dir)
     wandb.finish() #fixes broken pipe error
 
     tracker.stop() # stops tracking emissions
