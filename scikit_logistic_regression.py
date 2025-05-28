@@ -1,3 +1,4 @@
+from codecarbon import EmissionsTracker
 from sklearn.calibration import LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, ConfusionMatrixDisplay
@@ -10,22 +11,28 @@ tracker.start()
 
 sentence_embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-train_data = loader.get_data('data/train_data.jsonl')
-dev_data = loader.get_data('data/dev_data.jsonl')
+#loads data from jsonl files and extracts climate sentance and given label
+def load_jsonl(file_path):
+    data = loader.get_data(file_path)
+    data_x = []
+    data_y = []
 
-x_train = []
-y_train = []
+    for i in range(len(data)):
+        data_x.append(data[i]['claim'])
+        if data[i]['claim_label'] == 'SUPPORTS':
+            data_y.append(0)
+        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED':
+            data_y.append(1)
+        elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
+            data_y.append(2)
+        else:
+            print("error with dataset!")
+            return None
 
-for i in range(len(train_data)):
-    x_train.append(train_data[i]['claim'])
-    y_train.append(train_data[i]['claim_label'])
+    return data_x, data_y
 
-x_dev = []
-y_dev = []
-
-for i in range(len(dev_data)):
-    x_dev.append(dev_data[i]['claim'])
-    y_dev.append(dev_data[i]['claim_label'])
+x_train, y_train = load_jsonl('data/train_data.jsonl')
+x_dev, y_dev = load_jsonl('data/dev_data.jsonl')
 
 encoded_x_train = sentence_embedding_model.encode(x_train)
 encoded_x_dev = sentence_embedding_model.encode(x_dev)

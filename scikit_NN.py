@@ -27,25 +27,33 @@ parser.add_argument("-w", type=bool, default=False, help="if true we will do war
 parser.add_argument("-e", type=bool, default=False, help="If ture we will do early stopping")
 args = parser.parse_args()
 
+
 # gets embeddings for the input claims
 sentence_embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-train_data = loader.get_data('data/train_data.jsonl')
-dev_data = loader.get_data('data/dev_data.jsonl')
 
-x_train = []
-y_train = []
+#loads data from jsonl files and extracts climate sentance and given label
+def load_jsonl(file_path):
+    data = loader.get_data(file_path)
+    data_x = []
+    data_y = []
 
-for i in range(len(train_data)):
-    x_train.append(train_data[i]['claim'])
-    y_train.append(train_data[i]['claim_label'])
+    for i in range(len(data)):
+        data_x.append(data[i]['claim'])
+        if data[i]['claim_label'] == 'SUPPORTS':
+            data_y.append(0)
+        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED':
+            data_y.append(1)
+        elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
+            data_y.append(2)
+        else:
+            print("error with dataset!")
+            return None
 
-x_dev = []
-y_dev = []
+    return data_x, data_y
 
-for i in range(len(dev_data)):
-    x_dev.append(dev_data[i]['claim'])
-    y_dev.append(dev_data[i]['claim_label'])
+x_train, y_train = load_jsonl('data/train_data.jsonl')
+x_dev, y_dev = load_jsonl('data/dev_data.jsonl')
 
 # 
 encoded_x_train = sentence_embedding_model.encode(x_train)
