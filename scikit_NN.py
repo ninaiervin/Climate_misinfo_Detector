@@ -1,5 +1,4 @@
 import argparse
-import torch
 from sklearn.calibration import LabelEncoder
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, ConfusionMatrixDisplay
@@ -9,6 +8,7 @@ import matplotlib.pyplot as plt
 from joblib import dump, load
 from codecarbon import EmissionsTracker
 
+# This parses command line arguments that specify various hyperparameters.
 def parse_args():
     parser = argparse.ArgumentParser()
 
@@ -38,10 +38,7 @@ def load_jsonl(file_path):
         if data[i]['claim_label'] == 'SUPPORTS':
             data_y.append(0)
         elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED' or data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
-        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED' or data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
             data_y.append(1)
-        #elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
-        #    data_y.append(2)
         else:
             print("error with dataset!")
             return None
@@ -56,28 +53,23 @@ def main():
 
     args = parse_args()
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    torch.set_default_device(device)
-
-    # gets embeddings for the input claims
+    # This initializes the sentence transformer which is used to embed the slimate claims
     sentence_embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
+    # This loads the train and dev data, and then encodes the climate claim string using the sentence transformer
     x_train, y_train = load_jsonl('data/train_data.jsonl')
     x_dev, y_dev = load_jsonl('data/dev_data.jsonl')
 
-    # 
     encoded_x_train = sentence_embedding_model.encode(x_train)
     encoded_x_dev = sentence_embedding_model.encode(x_dev)
 
+    # This initializes the neural network model, trains it, and gets the predictions on the dev and train data
     model = MLPClassifier(hidden_layer_sizes=(args.hi,3), activation=args.act, alpha=args.a,batch_size=args.b, learning_rate=args.lrt, learning_rate_init=args.lr, max_iter=args.m, warm_start=args.w, early_stopping=args.e)
     model.fit(encoded_x_train, y_train)
     dev_y_pred = model.predict(encoded_x_dev)
     train_y_pred = model.predict(encoded_x_train)
 
-    model_params = 'NN_params_newest.joblib'
-    dump(model, model_params)
-    # loaded_model = load('model_params.joblib')
-
+    # This computes the accuracy, precision, recall, and f1 metrics based on the dev predictions and train predictions
     dev_acc = accuracy_score(y_dev, dev_y_pred)
     dev_pr = precision_score(y_dev, dev_y_pred, average='macro')
     dev_recall = recall_score(y_dev, dev_y_pred, average='macro')
@@ -88,15 +80,28 @@ def main():
     train_recall = recall_score(y_train, train_y_pred, average='macro')
     train_f1 = f1_score(y_train, train_y_pred, average='macro')
 
-    matrix = confusion_matrix(y_dev, dev_y_pred)
+    # This checks in the accuracy of the current model is the best one so far, and if it is, 
+    # it saves the model parameters and updates the best accuracy variable
+    global best_acc
+    if dev_acc > best_acc:
+        best_acc = dev_acc
+        model_params = f'log_reg_params_{dev_acc:.4f}.joblib'
+        dump(model, model_params)
 
+    # This stops the emissions tracker and saves the grams of CO2 produced
+    emissions_kg = tracker.stop()
+    if emissions_kg is None:
+        emissions_kg = 0
+    emissions_g = emissions_kg * 1000
+    
+    # This prints the computed metrics, as well as the emissions, and creates and displays a confusion matrix.  
     print(f"Accuracy: train={train_acc}, dev={dev_acc}")
     print(f"Precision: train={train_pr}, dev={dev_pr}")
     print(f"Recall: train={train_recall}, dev={dev_recall}")
     print(f"F1-score: train={dev_f1}, dev={dev_f1}")
+    matrix = confusion_matrix(y_dev, dev_y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=model.classes_)
     disp.plot()
-    tracker.stop()
     plt.show()
 
 if __name__ == "__main__":

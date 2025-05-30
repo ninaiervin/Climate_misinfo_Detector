@@ -1,10 +1,14 @@
 from codecarbon import EmissionsTracker
+from joblib import dump
 from sklearn.calibration import LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, ConfusionMatrixDisplay
 import exploring_data_layout as loader
 from sentence_transformers import SentenceTransformer
 import matplotlib.pyplot as plt
+
+# Saves the best accuracy to a global variable
+best_acc = 0
 
 # This function loads data from jsonl files and extracts the string of the claim
 # and, depending on the given label, class 0 or 1. Since we combined three classes in order
@@ -53,6 +57,14 @@ def main():
     precision = precision_score(y_dev, y_pred, average='macro')
     recall = recall_score(y_dev, y_pred, average='macro')
     f1 = f1_score(y_dev, y_pred, average='macro')
+
+    # This checks in the accuracy of the current model is the best one so far, and if it is, 
+    # it saves the model parameters and updates the best accuracy variable
+    global best_acc
+    if accuracy > best_acc:
+        best_acc = accuracy
+        model_params = f'log_reg_params_{accuracy:.4f}.joblib'
+        dump(model, model_params)
 
     # This stops the emissions tracker and saves the grams of CO2 produced
     emissions_kg = tracker.stop()
