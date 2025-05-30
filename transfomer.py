@@ -8,7 +8,8 @@ import exploring_data_layout as loader
 from sklearn.metrics import accuracy_score, f1_score
 from codecarbon import EmissionsTracker
 
-#parces command line arguments that specifiies model archetechtue and training.
+# This parses command line arguments that specify the model architechture, various hyperparameters,
+# and other important information like the output directory to save the best performing model.
 def parse_args():
     parser = argparse.ArgumentParser(description="training transfomer for text classification")
 
@@ -41,15 +42,15 @@ def load_jsonl(file_path):
             data_y.append(0)
         elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED' or data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
             data_y.append(1)
-        #elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
-        #    data_y.append(2)
+        # elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
+        #     data_y.append(2)
         else:
             print("error with dataset!")
             return None
 
     return data_x, data_y
 
-# This is a function that takes in our given sentences and tokenises them using a pre-trained tokenizer
+# This is a function that takes in our given sentences and tokenizes them using a pre-trained tokenizer
 def tokenize_function(examples, tokenizer, max_length):
     return tokenizer(examples["sentence"], padding="max_length", truncation=True, max_length=max_length)
 
@@ -68,38 +69,39 @@ def main():
     tracker.start()
     args = parse_args()
 
-    #Loading the train and dev sets.
-    #for evaluation of our models capablity to generlise to new points we will use the dev set. This will be used for hyperpram sweeps
-    #training data will be used to train the model and calculate loss to use MBSGD for weight update.
+    # Loading the train and dev sets.
+    # For evaluation of our models capablity to generlize to new points we will use the dev set. This will be used for hyperprameter sweeps.
+    # The training data will be used to train the model and calculate loss to use MBSGD for weight update.
     train_x, train_y = load_jsonl('data/train_data.jsonl')
     dev_x, dev_y = load_jsonl('data/dev_data.jsonl')
 
     train_dataset = Dataset.from_list([{'sentence': x, 'label': int(y)} for x, y in zip(train_x, train_y)])
     dev_dataset = Dataset.from_list([{'sentence': x, 'label': int(y)} for x, y in zip(dev_x, dev_y)])
 
-    #We are defining a pretrained tokenizer to get the static embeddings.
+    # We are defining a pretrained tokenizer to get the static embeddings.
     tokenizer = BertTokenizerFast.from_pretrained(args.model_name)
 
-    #Here we are using our function to tokenise all our training and evaluation datapoints. 
-    #No training is being done here since these tokens have already been learned.
+    # Here we are using our function to tokenize all our training and evaluation datapoints. 
+    # No training is being done here since these tokens have already been learned.
     train_dataset = train_dataset.map(lambda x: tokenize_function(x, tokenizer, args.seq_length), batched=True)
     dev_dataset = dev_dataset.map(lambda x: tokenize_function(x, tokenizer, args.seq_length), batched=True)
     train_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
     dev_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
 
-    #Here we are defining the config for all the model prameters.
+    # Here we are defining the config for all the model prameters.
     config = BertConfig(
-        hidden_size=args.hidden_size, #sets the size of each token going through the model. (how big we want the embeddings) (BERT=768)
-        num_hidden_layers=args.num_hidden_layers, # Number of encoder layers (this effects the amount of nattention we will do) (BERT=12)
-        num_attention_heads=args.num_attention_heads, # affects how many attention heads for each attention layer (aka how much compute and how many prams in each attention layer) (BERT=128)
-        intermediate_size=args.FFNN, #the size of the FFNN inside each encoder block. (BERT=3072)
-        num_labels=2, # this is the number of output classes (defines the size of the final linear layer)
+        hidden_size=args.hidden_size, #Sets the size of each token going through the model (how big we want the embeddings). (BERT=768)
+        num_hidden_layers=args.num_hidden_layers, #Number of encoder layers (this affects the amount of attention we will do). (BERT=12)
+        num_attention_heads=args.num_attention_heads, #Determines how many attention heads for each attention layer (aka how much compute and how many prams in each attention layer). (BERT=128)
+        intermediate_size=args.FFNN, #The size of the FFNN inside each encoder block. (BERT=3072)
+        num_labels=2, #The number of output classes (defines the size of the final linear layer).
     )
 
-    #Once the config has been defined we can create and init the model using the BERT "archatecture". (allowing us to use the pipline created for bert but we canged all the prams and are training our own weights).
+    # Once the config has been defined we can create and initialize the model using the BERT "architecture"
+    # (allowing us to use the pipline created for bert but we changed all the parameters and are training our own weights).
     model = BertForSequenceClassification(config)
 
-    #Here we are defining all the training arguments.
+    # Here we are defining all the training arguments.
     training_args = TrainingArguments(
         output_dir=args.output_dir, #defines where the model checkpoints and preditions will be saved
         learning_rate=args.lr, #init learing rate for MBSGD for AdamW
@@ -110,13 +112,13 @@ def main():
         logging_dir=f"{args.output_dir}/logs", #directory for where to log data
         logging_steps=10, #how often to log data during training
         eval_strategy='epoch', #evaluation on dev_set will be done every epoch and logged/reported
-        save_strategy="best", # how often to save weights. (set to best means only save the weights if the dev acc is better)
-        load_best_model_at_end=True, #makes sure last evalustion is done on the best model and makes sure the best model is saved
-        metric_for_best_model='accuracy', #Best model is choosen by dev accuracy
-        gradient_accumulation_steps=args.grad_accum, # number of updates steps to accumulate before doing MBSGD
+        save_strategy="best", # how often to save weights (set to best means only save the weights if the dev accuracy is better).
+        load_best_model_at_end=True, #makes sure last evaluation is done on the best model and makes sure the best model is saved
+        metric_for_best_model='accuracy', #best model is choosen based on dev accuracy
+        gradient_accumulation_steps=args.grad_accum, #number of updates steps to accumulate before doing MBSGD
     )
 
-    # gives all the defined peices to the trainer
+    # Gives all the defined pieces to the trainer
     trainer = Trainer(
         model=model, 
         args=training_args,
@@ -126,8 +128,9 @@ def main():
         compute_metrics=compute_metrics,
     )
 
-    #This is the step where the model gets trained.
-    #Since we are not using a pretrained model all the weights are learned this includes:
+    # This is the step where the model gets trained.
+    # Since we are not using a pretrained model, all the weights are learned.
+    # This includes:
         # embedings
         # positional encodings
         # all attention weights  (W_q, W_k, W_v, and W_o)
@@ -136,7 +139,7 @@ def main():
         # final linear output layer
     trainer.train()
     trainer.save_model(args.output_dir)
-    wandb.finish() #fixes broken pipe error
+    wandb.finish() # fixes broken pipe error
 
     tracker.stop() # stops tracking emissions
 
