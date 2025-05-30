@@ -22,7 +22,10 @@ def parse_args():
     
     return parser.parse_args()
 
-#loads data from jsonl files and extracts climate sentance and given label
+# This function loads data from jsonl files and extracts the string of the claim
+# and, depending on the given label, class 0 or 1. Since we combined three classes in order
+# to do binary classification, if the label is SUPPORTS it is assigned class 0, and if it
+# is anything else it is assigned class 1.
 def load_jsonl(file_path):
     data = loader.get_data(file_path)
     data_x = []
@@ -55,8 +58,8 @@ def compute_metrics(eval_pred):
     return {"accuracy": acc, "f1": f1}
 
 def main():
-    #this tracker will track things such as energy consuption and CO^2 emissions.
-    #this information will be used for alasys of final models.
+    # This initializes and starts the emissions tracker. This tracker will track things such as energy consuption and CO^2 emissions. 
+    # This information will be used in the analysis of the models along with other evaluation metrics.
     tracker = EmissionsTracker(project_name="BERT")
     tracker.start()
     args = parse_args()

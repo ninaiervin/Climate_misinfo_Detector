@@ -11,7 +11,7 @@ from codecarbon import EmissionsTracker
 #parces command line arguments that specifiies model archetechtue and training.
 def parse_args():
     parser = argparse.ArgumentParser(description="training transfomer for text classification")
-    
+
     parser.add_argument("--model_name", type=str, default='bert-base-uncased', help="model name for tokenizer")
     parser.add_argument("--hidden_size", type=int, default=128, help="size of hidden dimention")
     parser.add_argument("--num_hidden_layers", type=int, default=2, help="number of hidden transfomer blocks")
@@ -26,7 +26,10 @@ def parse_args():
     
     return parser.parse_args()
 
-#loads data from jsonl files and extracts climate sentance and given label
+# This function loads data from jsonl files and extracts the string of the claim
+# and, depending on the given label, class 0 or 1. Since we combined three classes in order
+# to do binary classification, if the label is SUPPORTS it is assigned class 0, and if it
+# is anything else it is assigned class 1.
 def load_jsonl(file_path):
     data = loader.get_data(file_path)
     data_x = []
@@ -46,11 +49,11 @@ def load_jsonl(file_path):
 
     return data_x, data_y
 
-#This is a function that takes in our given sentences and tokenises them using a pre-trained tokenizer
+# This is a function that takes in our given sentences and tokenises them using a pre-trained tokenizer
 def tokenize_function(examples, tokenizer, max_length):
     return tokenizer(examples["sentence"], padding="max_length", truncation=True, max_length=max_length)
 
-#computes accueracy and f1 score for the given predictions and labels
+# This function computes accuracy and f1 score for the given predictions and labels
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     preds = torch.argmax(torch.tensor(logits), dim=1).numpy()
@@ -59,8 +62,8 @@ def compute_metrics(eval_pred):
     return {"accuracy": acc, "f1": f1}
 
 def main():
-    #this tracker will track things such as energy consuption and CO^2 emissions.
-    #this information will be used for alasys of final models.
+    # This initializes and starts the emissions tracker. This tracker will track things such as energy consuption and CO^2 emissions. 
+    # This information will be used in the analysis of the models along with other evaluation metrics.
     tracker = EmissionsTracker(project_name="Transfomer")
     tracker.start()
     args = parse_args()
@@ -139,4 +142,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
