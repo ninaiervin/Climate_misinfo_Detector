@@ -36,10 +36,10 @@ def load_jsonl(file_path):
         data_x.append(data[i]['claim'])
         if data[i]['claim_label'] == 'SUPPORTS':
             data_y.append(0)
-        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED':
+        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED' or data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
             data_y.append(1)
-        elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
-            data_y.append(2)
+        #elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
+        #    data_y.append(2)
         else:
             print("error with dataset!")
             return None
@@ -90,7 +90,7 @@ def main():
         num_hidden_layers=args.num_hidden_layers, # Number of encoder layers (this effects the amount of nattention we will do) (BERT=12)
         num_attention_heads=args.num_attention_heads, # affects how many attention heads for each attention layer (aka how much compute and how many prams in each attention layer) (BERT=128)
         intermediate_size=args.FFNN, #the size of the FFNN inside each encoder block. (BERT=3072)
-        num_labels=3, # this is the number of output classes (defines the size of the final linear layer)
+        num_labels=2, # this is the number of output classes (defines the size of the final linear layer)
     )
 
     #Once the config has been defined we can create and init the model using the BERT "archatecture". (allowing us to use the pipline created for bert but we canged all the prams and are training our own weights).
