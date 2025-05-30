@@ -21,10 +21,10 @@ def load_jsonl(file_path):
         data_x.append(data[i]['claim'])
         if data[i]['claim_label'] == 'SUPPORTS':
             data_y.append(0)
-        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED':
+        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED' or data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
             data_y.append(1)
-        elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
-            data_y.append(2)
+        #elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
+        #    data_y.append(2)
         else:
             print("error with dataset!")
             return None

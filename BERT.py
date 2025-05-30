@@ -32,10 +32,10 @@ def load_jsonl(file_path):
         data_x.append(data[i]['claim'])
         if data[i]['claim_label'] == 'SUPPORTS':
             data_y.append(0)
-        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED':
+        elif data[i]['claim_label'] == 'REFUTES' or data[i]['claim_label'] == 'DISPUTED' or data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
             data_y.append(1)
-        elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
-            data_y.append(2)
+        #elif data[i]['claim_label'] == 'NOT_ENOUGH_INFO':
+        #    data_y.append(2)
         else:
             print("error with dataset!")
             return None
@@ -81,7 +81,7 @@ def main():
     dev_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "label"])
 
     # Here we are loading a pre-trained BERT model. This means will be loading in weights that have alreay been trained on a larger dataset. We are loading in the encoder portion, and the final classification is randonly init.
-    model = BertForSequenceClassification.from_pretrained(args.model_name, num_labels=3)
+    model = BertForSequenceClassification.from_pretrained(args.model_name, num_labels=2)
 
     #Here we are defining all the training arguments.
     training_args = TrainingArguments(
