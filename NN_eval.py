@@ -28,7 +28,7 @@ def load_jsonl(file_path):
 def main():
     x_test, y_test = load_jsonl('data/test_data.jsonl')
 
-    # This loads the saved logistic regression model, which has a dev accuracy of 0.6818
+    # This loads the saved Neural Network model, which has a dev accuracy of 0.6883
     model = load('NN_params_0.6883.joblib')
 
     # This initializes the sentence transformer which is used to embed the slimate claims
