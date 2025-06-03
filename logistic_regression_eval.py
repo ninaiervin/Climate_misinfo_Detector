@@ -31,7 +31,7 @@ def main():
     # This loads the saved logistic regression model, which has a dev accuracy of 0.6818
     model = load('log_reg_params_0.6818.joblib')
 
-    # This initializes the sentence transformer which is used to embed the slimate claims
+    # This initializes the sentence transformer which is used to embed the climate claims
     sentence_embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
     encoded_x_test = sentence_embedding_model.encode(x_test)

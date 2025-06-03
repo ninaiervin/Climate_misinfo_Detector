@@ -40,10 +40,8 @@ def load_jsonl(file_path):
         data_x.append(item['claim'])
         if item['claim_label'] == 'SUPPORTS':
             data_y.append(0)
-        elif item['claim_label'] in ('REFUTES', 'DISPUTED'):
+        elif item['claim_label'] in ('REFUTES', 'DISPUTED') or item['claim_label'] == 'NOT_ENOUGH_INFO':
             data_y.append(1)
-        elif item['claim_label'] == 'NOT_ENOUGH_INFO':
-            data_y.append(2)
         else:
             raise ValueError("Unknown label in dataset")
 
@@ -55,7 +53,7 @@ def main():
 
     print(args)
 
-    eval_x, eval_y = load_jsonl('data/dev_data.jsonl')
+    eval_x, eval_y = load_jsonl('data/test_data.jsonl')
 
     tokenizer = BertTokenizer.from_pretrained(args.model_name)
 
