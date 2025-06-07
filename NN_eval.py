@@ -29,7 +29,7 @@ def main():
     x_test, y_test = load_jsonl('data/test_data.jsonl')
 
     # This loads the saved Neural Network model, which has a dev accuracy of 0.6883
-    model = load('saved_models/NN_params_0.6883.joblib')
+    model = load('NN_params_0.6883.joblib')
 
     # This initializes the sentence transformer which is used to embed the slimate claims
     sentence_embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
