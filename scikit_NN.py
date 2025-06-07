@@ -12,7 +12,7 @@ from codecarbon import EmissionsTracker
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-hi", type=int, default=100, help="This is the hidden layer side")
+    parser.add_argument("-hi", type=int, default=100, help="This is the hidden layer size")
     parser.add_argument("-act", type=str, default='relu', help="This is the hidden activation")
     parser.add_argument("-a", type=float, default=0.0001, help="This is alpha for strength of reg")
     parser.add_argument("-b", type=int, default=100, help="This is the batch size")
@@ -53,7 +53,7 @@ def main():
 
     args = parse_args()
 
-    # This initializes the sentence transformer which is used to embed the slimate claims
+    # This initializes the sentence transformer which is used to embed the climate claims
     sentence_embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
     # This loads the train and dev data, and then encodes the climate claim string using the sentence transformer

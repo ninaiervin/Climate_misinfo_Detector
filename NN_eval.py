@@ -51,7 +51,7 @@ def main():
     print(f"Recall: {test_recall}")
     print(f"F1-score: {test_f1}")
     matrix = confusion_matrix(y_test, test_y_pred)
-    disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=model.classes_)
+    disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=["Supported", "Not Supported"])
     disp.plot()
     plt.show()
 

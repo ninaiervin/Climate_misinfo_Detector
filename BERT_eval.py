@@ -23,7 +23,7 @@ def compute_metrics(eval_pred):
     precision = precision_score(labels, preds, average='macro')
     recall = recall_score(labels, preds, average='macro')
     matrix = confusion_matrix(labels, preds)
-    disp = ConfusionMatrixDisplay(confusion_matrix=matrix)
+    disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=["Supported", "Not Supported"])
     disp.plot()
     plt.show()
     return {"accuracy": acc, "precision": precision, "recal": recall, "f1": f1}
