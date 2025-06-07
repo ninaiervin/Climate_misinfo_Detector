@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from joblib import dump, load
 from codecarbon import EmissionsTracker
 
+# Saves the best accuracy to a global variable
+best_acc = 0
+
 # This parses command line arguments that specify various hyperparameters.
 def parse_args():
     parser = argparse.ArgumentParser()
