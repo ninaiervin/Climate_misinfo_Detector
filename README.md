@@ -21,6 +21,17 @@ Each model is trained on a dataset of labeled climate claims and evaluated on st
 
 ---
 
+## Results
+
+| Model                       | Accuracy | Recall | Fine Tuning CO₂ Emissions (g) | Training CO₂ Emissions (g) |
+|------------------------------|-----------|-----------|--------------------|---------------------|
+| Logistic Regression (scikit) | 0.66 | 0.67 | 0.01 | 3 |
+| Neural Network (MLP)         | **0.68** | **0.75** | 0.01 | 3 |
+| Transformer (custom)         | 0.66 | 0.74 | 0.0 | 0.25 |
+| BERT-base Fine-tuned         | 0.66 | 0.67 | 0.01 | 650,000 |
+
+---
+
 ## Repository Structure
 
 ```
@@ -129,17 +140,6 @@ python BERT_eval.py --output_dir ./bert_output
 
 ---
 
-## Results
-
-| Model                       | Accuracy | Recall | Fine Tuning CO₂ Emissions (g) | Training CO₂ Emissions (g) |
-|------------------------------|-----------|-----------|--------------------|---------------------|
-| Logistic Regression (scikit) | 0.66 | 0.67 | 0.01 | 3 |
-| Neural Network (MLP)         | **0.68** | **0.75** | 0.01 | 3 |
-| Transformer (custom)         | 0.66 | 0.74 | 0.0 | 0.25 |
-| BERT-base Fine-tuned         | 0.66 | 0.67 | 0.01 | 650,000 |
-
-
----
 
 ## Sustainability Tracking
 
@@ -174,9 +174,9 @@ Outputs include:
 M.S. Computer Science, University of California San Diego  
 [LinkedIn](https://www.linkedin.com/in/ninaiervin/)
 
-**Anuk Centellas**
-M.S. Computational Linguistics, University of Washington
-[LinkedIn](https://www.linkedin.com/in/anuk-centellas-0710a5294/)
+**Anuk Centellas**    
+M.S. Computational Linguistics, University of Washington    
+[LinkedIn](https://www.linkedin.com/in/anuk-centellas-0710a5294/)    
 
 ---
 
