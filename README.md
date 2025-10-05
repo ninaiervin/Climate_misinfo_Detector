@@ -129,7 +129,7 @@ python BERT_eval.py --output_dir ./bert_output
 
 ---
 
-## 📊 Example Results
+## Results
 
 | Model                       | Accuracy | Recall | Fine Tuning CO₂ Emissions (g) | Training CO₂ Emissions (g) |
 |------------------------------|-----------|-----------|--------------------|---------------------|
@@ -170,13 +170,14 @@ Outputs include:
 
 ## 🧑‍💻 Author
 
-**Nina I. Ervin**  
+**Nina Ervin**  
 M.S. Computer Science, University of California San Diego  
 [LinkedIn](https://www.linkedin.com/in/ninaiervin/)
 
 **Anuk Centellas**
 M.S. Computational Linguistics, University of Washington
 [LinkedIn](https://www.linkedin.com/in/anuk-centellas-0710a5294/)
+
 ---
 
 ## 📜 License
