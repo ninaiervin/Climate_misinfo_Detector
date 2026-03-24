@@ -178,9 +178,3 @@ M.S. Computer Science, University of California San Diego
 M.S. Computational Linguistics, University of Washington    
 [LinkedIn](https://www.linkedin.com/in/anuk-centellas-0710a5294/)    
 
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**.  
-See the [LICENSE](LICENSE) file for details.
